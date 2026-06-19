@@ -1,4 +1,4 @@
-﻿namespace BaseCsharpProgram
+﻿namespace BaseCsharpProgram.UniqueDigits
 {
     internal class UniqueDigits
     {
