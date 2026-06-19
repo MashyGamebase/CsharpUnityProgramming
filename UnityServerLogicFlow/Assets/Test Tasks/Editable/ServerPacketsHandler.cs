@@ -8,8 +8,32 @@ namespace TestTask.Editable
         #region Packet Handlers
         public static void LoginRequest(Packet packet)
         {
-            var clientLogInResponse = ServerMock.Instance.TryConnectClient(out var clientId);
-            SendLoginResponse(clientLogInResponse, clientId);
+            LoginResponse response =
+                ServerMock.Instance.TryConnectClient(
+                    out int clientId);
+
+            SendLoginResponse(
+                response,
+                clientId);
+
+            if (response == LoginResponse.Success)
+            {
+                SendMonsterData();
+            }
+        }
+
+        public static void MonsterDamageRequest(Packet packet)
+        {
+            float damage = packet.ReadFloat();
+
+            ServerMock.Instance.ServerMobsManager.MonsterData.TakeDamage(damage);
+
+            SendMonsterData();
+        }
+
+        public static void ColorListRequest(Packet packet)
+        {
+            SendColorListResponse();
         }
 
         #endregion
@@ -24,6 +48,40 @@ namespace TestTask.Editable
 
                 ServerMock.Instance.PacketSenderServer.SendToClient(packet);
             }
+        }
+
+
+        public static void SendMonsterData()
+        {
+            var monsterData = ServerMock.Instance.ServerMobsManager.MonsterData;
+
+            Packet packet = new Packet(2);
+            packet.Write(monsterData.MonsterId);
+            packet.Write((int)monsterData.MonsterType);
+            packet.Write(monsterData.MonsterMaxHealth);
+            packet.Write(monsterData.MonsterCurrentHealth);
+
+            ServerMock.Instance.PacketSenderServer.SendToClient(packet);
+        }
+
+        public static void SendColorListResponse()
+        {
+            int colorCount = Random.Range(5, 11);
+
+            Packet packet = new Packet(5);
+            packet.Write(colorCount);
+
+            for (int i = 0; i < colorCount; i++)
+            {
+                Color color = Random.ColorHSV();
+
+                packet.Write(color.r);
+                packet.Write(color.g);
+                packet.Write(color.b);
+                packet.Write(color.a);
+            }
+
+            ServerMock.Instance.PacketSenderServer.SendToClient(packet);
         }
 
         #endregion

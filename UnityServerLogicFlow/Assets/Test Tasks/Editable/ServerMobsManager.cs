@@ -32,6 +32,9 @@ namespace TestTask.Editable
         {
             MonsterData.MonsterDeath -= OnMonsterDied;
             MonsterData = SpawnMonster();
+
+            // Automatically respawn a new one after it dies
+            ServerPacketsHandler.SendMonsterData();
         }
     }
 }  
